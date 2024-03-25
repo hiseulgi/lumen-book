@@ -19,4 +19,8 @@ $router->get('/', function () use ($router) {
 
 $router->group(['prefix' => 'books'], function () use ($router) {
     $router->get('/', 'BooksController@index');
+    $router->get('/{id:[\d]+}', ['as' => 'books.show', 'uses' => 'BooksController@show']);
+    $router->post('/', 'BooksController@store');
+    $router->put('/{id:[\d]+}', 'BooksController@update');
+    $router->delete('/{id:[\d]+}', 'BooksController@destroy');
 });
