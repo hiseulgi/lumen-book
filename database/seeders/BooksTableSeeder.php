@@ -13,20 +13,20 @@ class BooksTableSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('books')->insert([
-            'title' => 'The Great Gatsby',
-            'description' => 'The Great Gatsby is a 1925 novel by American writer F. Scott Fitzgerald.',
-            'author' => 'F. Scott Fitzgerald',
+         DB::table('books')->insert([
+            'title' => 'War of the Worlds',
+            'description' => 'A science fiction masterpiece about Martians invading London',
+            'author' => 'H. G. Wells',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
 
         DB::table('books')->insert([
-            'title' => 'To Kill a Mockingbird',
-            'description' => 'To Kill a Mockingbird is a novel by Harper Lee published in 1960.',
-            'author' => 'Harper Lee',
+            'title' => 'A Wrinkle in Time',
+            'description' => 'A young girl goes on a mission to save her father who has gone missing after working on a mysterious project called a tesseract.',
+            'author' => 'Madeleine L\'Engle',
             'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
         ]);
     }
 }
