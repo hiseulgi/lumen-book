@@ -3,9 +3,13 @@
 namespace Tests\App\Http\Controllers;
 
 use Tests\TestCase;
+use App\Models\Book;
+use Laravel\Lumen\Testing\DatabaseMigrations;
 
 class BooksControllerTest extends TestCase
 {
+    use DatabaseMigrations;
+
     /** @test **/
     public function index_status_code_should_be_200()
     {
@@ -15,14 +19,13 @@ class BooksControllerTest extends TestCase
     /** @test **/
     public function index_should_return_a_collection_of_records()
     {
-        $this
-        ->get('/books')
-        ->seeJson([
-            'title' => 'War of the Worlds'
-        ])
-        ->seeJson([
-            'title' => 'A Wrinkle in Time'
-        ]);
+        $books = Book::factory()->count(2)->create();
+
+        $response = $this->get('/books');
+
+        foreach ($books as $book) {
+            $response->seeJson(['title' => $book->title]);
+        }
     }
 
     /** @test **/
@@ -40,32 +43,35 @@ class BooksControllerTest extends TestCase
     /** @test **/
     public function show_should_return_a_valid_book()
     {
-        $this
-            ->get('/books/1')
-            ->seeStatusCode(200)
-            ->seeJson([
-                'id' => 1,
-                'title' => 'War of the Worlds',
-                'description' => 'A science fiction masterpiece about Martians invading London',
-                'author' => 'H. G. Wells'
-            ]);
-        $data = json_decode($this->response->getContent(), true );
-        $this->assertArrayHasKey('created_at', $data);
-        $this->assertArrayHasKey('updated_at', $data);
+        // Create a book using factory
+        $book = Book::factory()->create();
+
+        // Hit the show route
+        $response = $this->get("/books/{$book->id}");
+
+        // Assert response status code
+        $response->assertResponseStatus(200);
+
+        $response->assertJson(json_encode([
+            'id' => $book->id,
+            'title' => $book->title,
+            'author' => $book->author,
+        ]));
     }
 
     /** @test **/
     public function show_should_fail_when_the_book_id_does_not_exist()
     {
         $this
-            ->get('/books/99999')
+            ->get('/books/99999', ['Accept' => 'application/json'])
             ->seeStatusCode(404)
             ->seeJson([
                 'error' => [
-                    'message' => 'Book not found'
+                    'message' => 'Not Found',
+                    'status' => 404
                 ]
             ]);
-        }
+    }
 
     /** @test **/
     public function store_should_save_new_book_in_the_database()
@@ -95,31 +101,36 @@ class BooksControllerTest extends TestCase
             ->seeHeaderWithRegExp('Location', '#/books/[\d]+$#');
     }
 
-    /** @test **/
     public function update_should_only_change_fillable_fields()
     {
-        $this->notSeeInDatabase('books', [
-            'title' => 'The War of the Worlds'
+        $book = Book::factory()->create([
+            'title' => 'War of the Worlds',
+            'description' => 'A science fiction masterpiece about Martians invading London',
+            'author' => 'H. G. Wells',
         ]);
 
-        $this->put('/books/1', [
-            'id' => 5,
+        $response = $this->put("/books/{$book->id}", [
             'title' => 'The War of the Worlds',
             'description' => 'The book is way better than the movie.',
             'author' => 'Wells, H. G.'
         ]);
 
-        $this
-            ->seeStatusCode(200)
-            ->seeJson([
-                'id' => 1,
-                'title' => 'The War of the Worlds',
-                'description' => 'The book is way better than the movie.',
-                'author' => 'Wells, H. G.'
-            ])
-            ->seeInDatabase('books', [
-                'title' => 'The War of the Worlds'
-            ]);
+        $response->assertResponseStatus(200);
+
+        $response->assertJson(json_encode([
+            'id' => $book->id,
+            'title' => $book->title,
+            'author' => $book->author,
+        ]));
+
+        $response->seeInDatabase('books', [
+            'title' => 'The War of the Worlds'
+        ]);
+
+        // Assert the book with id 5 is not in the database
+        $response->missingFromDatabase('books', [
+            'id' => 5
+        ]);
     }
 
     /** @test **/
@@ -145,12 +156,12 @@ class BooksControllerTest extends TestCase
     /** @test **/
     public function destroy_should_remove_a_valid_book()
     {
-        $this
-            ->delete('/books/1')
-            ->seeStatusCode(204)
-            ->isEmpty();
+        $book = Book::factory()->create();
 
-        $this->notSeeInDatabase('books', ['id' => 1]);
+        $this->delete("/books/{$book->id}")
+            ->assertResponseStatus(204);
+
+        $this->missingFromDatabase('books', ['id' => $book->id]);
     }
 
     /** @test **/

@@ -26,15 +26,7 @@ class BooksController extends Controller
     // Test with: curl http://localhost/books/1
     public function show($id)
     {
-        try {
-            return Book::findOrFail($id);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'error' => [
-                    'message' => 'Book not found'
-                ]
-            ], 404);
-        }
+        return Book::findOrFail($id);
     }
 
     /**
