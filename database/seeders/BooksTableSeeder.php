@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Carbon\Carbon;
+use App\Models\Author;
+use App\Models\Book;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class BooksTableSeeder extends Seeder
 {
@@ -13,20 +13,12 @@ class BooksTableSeeder extends Seeder
      */
     public function run(): void
     {
-         DB::table('books')->insert([
-            'title' => 'War of the Worlds',
-            'description' => 'A science fiction masterpiece about Martians invading London',
-            'author' => 'H. G. Wells',
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ]);
-
-        DB::table('books')->insert([
-            'title' => 'A Wrinkle in Time',
-            'description' => 'A young girl goes on a mission to save her father who has gone missing after working on a mysterious project called a tesseract.',
-            'author' => 'Madeleine L\'Engle',
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now()
-        ]);
+        Author::factory(10)->create()->each(function ($author) {
+            $booksCount = rand(1, 5);
+            while ($booksCount > 0) {
+                $author->books()->save(Book::factory()->make());
+                $booksCount--;
+            }
+        });
     }
 }

@@ -22,10 +22,10 @@ class BookTransformerTest extends TestCase
     /** @test **/
     public function it_transforms_a_book_model()
     {
-        $book = Book::factory()->create();;
+        $books = $this->bookFactory();
         $subject = new BookTransformer();
 
-        $transform = $subject->transform($book);
+        $transform = $subject->transform($books);
 
         $this->assertArrayHasKey('id', $transform);
         $this->assertArrayHasKey('title', $transform);

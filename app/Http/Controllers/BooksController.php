@@ -41,7 +41,7 @@ class BooksController extends Controller
         $this->validate($request, [
             'title' => 'required|max:255',
             'description' => 'required',
-            'author' => 'required'
+            'author_id' => 'required|exists:authors,id'
         ], [
             'description.required' => 'Please provide a :attribute.'
         ]);
@@ -68,14 +68,14 @@ class BooksController extends Controller
             return response()->json([
                 'error' => [
                     'message' => 'Book not found'
-                    ]
-                ], 404);
-            }
+                ]
+            ], 404);
+        }
 
         $this->validate($request, [
             'title' => 'required|max:255',
             'description' => 'required',
-            'author' => 'required'
+            'author_id' => 'required|exists:authors,id'
         ], [
             'description.required' => 'Please provide a :attribute.'
         ]);
