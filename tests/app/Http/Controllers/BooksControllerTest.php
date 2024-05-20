@@ -149,6 +149,7 @@ class BooksControllerTest extends TestCase
             ->seeHeaderWithRegExp('Location', '#/books/[\d]+$#');
     }
 
+    /** @test */
     public function update_should_only_change_fillable_fields()
     {
         $book = $this->bookFactory();
